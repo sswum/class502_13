@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import AddTodo from '../components/AddTodo';
 import TodoList from '../components/TodoList';
+import { produce } from 'immer';
 
 const intialValue = [
   { id: 1, title: '할일1', done: true },
@@ -27,15 +28,24 @@ const TodoContainer = () => {
         setMessage('할일을 입력하세요.');
         return;
       }
-
+/*
       setItems((prevItems) => {
         return prevItems.concat({
           id: id.current,
           title: todo.trim(),
           done: false,
         });
-      });
+      }); */
 
+      setItems(
+        produce((draft) => {
+        draft.push({
+          id: id.current,
+          title: todo.trim(),
+          done: false,
+        });
+      }),
+    );
       id.current++;
 
       setTodo('');
@@ -59,12 +69,19 @@ const TodoContainer = () => {
       setItems(newItems);
     */
 
-    setItems((prevItems) => {
+   /* setItems((prevItems) => {
       return prevItems.map((item) =>
         item.id === id ? { ...item, done: !item.done } : item,
       );
     });
-  }, []);
+  }, []);*/
+
+  setItems(
+    produce((draft) =>
+      draft.forEach((item) => item.id === id && (`item.done = !item.done`)),
+    ),
+  );
+}, []);
 
   // 할일 목록 제거
   const onRemove = useCallback((id) => {
