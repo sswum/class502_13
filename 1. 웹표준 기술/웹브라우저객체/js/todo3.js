@@ -1,7 +1,14 @@
 const todo = {
-  id: 1,
+  id: 0,
   data: [], // 스케줄 데이터
+  tpl: "", //스케줄 목록 템플릿 HTML
+  parser: nul,
+
   init() {
+    //스케줄 목록 템플릿 가져오기
+    const tplEl = document.getElementById("tpl");
+    this.tpl = tplEl.innerHTML;
+    this.parser = new DOMParser(); //parse, parser :변환
     // 저장값조회 ->스케줄 완성}
 
     const jsonData = localStorage.getItem("todos");
@@ -9,7 +16,7 @@ const todo = {
     console.log(todos);
 
     this.data = todos;
-    this.id = todos.length + 1;
+    this.id = todos.length;
 
     const itemsEl = document.querySelector(".itmes");
     for (const item of todos) {
@@ -71,32 +78,30 @@ const todo = {
     localStorage.setItem("todos", JSON.stringify(this.data));
   },
   getItem(subject) {
-    const liEl = document.createElement("li");
-    liEl.appendChild(document.createTextNode(subject));
+    let html = this.tpl;
+    html = html.replace(/#subject/g, subject).replace(/#id/g, this.id++);
 
-    const buttonEl = document.createElement("button");
-    buttonEl.appendChild(document.createTextNode("삭제"));
-    liEl.appendChild(buttonEl);
-
+    const dom = this.parser.parseFromString(html, "text/html");
+    const liEl = dom.querySelector("li");
+    const buttonEl = liEl.querySelector("button");
     const itemsEl = document.querySelector(".items");
-    itemsEl.appendChild(liEl);
+    itemsEl.removeChild(liEl);
 
-    // 스케줄 삭제
     buttonEl.addEventListener("click", function () {
-      const itemsEl = document.querySelector(".items");
-      itemsEl.removeChild(liEl);
+        const itemsEl = document.querySelector(".items");
+        itemsEl.removeChild(liEl);
+      
+        //localStorage에 저장된 데이터도 삭제
+        const id = liEl.dataset.id;
+        const index = todo.data.findIndex((item) => item.id === id);
+        if (index !== -1) {
+          todo.data.splice(index, 1);
+          todo.save();
+        }
+      });
+   
 
-      //localStorage에 저장된 데이터도 삭제
-      const id = liEl.dataset.id;
-      const index = todo.data.findIndex((item) => item.id === id);
-      if (index !== -1) {
-        todo.data.splice(index, 1);
-        todo.save();
-        
-      }
-    });
 
-    return liEl;
   },
 };
 
