@@ -11,3 +11,4 @@ public interface CoffeeShop {
         System.out.printf("%s의 총 매출액은 %d원 입니다.%n", shop.getName(), shop.getTotalSalePrice());
     }
 }
+
