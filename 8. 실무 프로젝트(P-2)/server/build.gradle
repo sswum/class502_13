@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'org.choongang'
+version = '1.0-SNAPSHOT'
+
+mainClassName= 'org.choongang.Application'
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies { //총 3가지 의존성 추가
+    //의존성 추가 1. 롬복 2. annotationProcessor 롬복 3. jackson databind 4. jackson datatype
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.jar {
+    manifest.attributes['Main-Class'] = 'org.choongang.Application'
+}
