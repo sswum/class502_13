@@ -14,7 +14,7 @@ import java.io.PrintWriter;
 //서블릿을 만들기 위해서 extends를 사용해서 상속시키기
 public class MemberController extends HttpServlet {
     @Override  //컨트롤 + O doGet , doPost 오버라이딩!
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 //HttpServletRequest req <- req는 톰캣이 만듦!!
 
         String mode = getMode(req);
@@ -28,7 +28,7 @@ public class MemberController extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String mode = getMode(req);
         if (mode.equals("join")) {
             joinProcess(req, resp);
