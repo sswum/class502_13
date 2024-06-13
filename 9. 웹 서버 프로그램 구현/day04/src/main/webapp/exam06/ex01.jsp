@@ -2,15 +2,15 @@
 
 <%
 
-pageContext.setAttribute("key1","value1");
-
+//pageContext.setAttribute("key1","value1");
+request.setAttribute("key1","value1");
 %>
 
 <jsp:include page="ex02.jsp" />
-//서로 다른 서블릿 생성 => ex01, ex02
-<%
-String key1 = (String)pageContext.getAttribute("key1");
 
+<%
+//String key1 = (String)pageContext.getAttribute("key1");
+String key1=(String)request.getAttribute("key1");
 %>
 
 <div>
