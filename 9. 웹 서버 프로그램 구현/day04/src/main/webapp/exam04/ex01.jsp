@@ -5,4 +5,4 @@
 </main>
 <jsp:include page="footer.jsp" />
 
-마지막꺼 사진에 버퍼를 중간중간 추가를 하는거다
+
