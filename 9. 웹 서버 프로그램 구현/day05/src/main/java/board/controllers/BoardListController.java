@@ -26,6 +26,13 @@ public class BoardListController extends HttpServlet {
         //속성 통해서 view로 넘겨준다.
 
 
+
+        req.setAttribute("addCss",new String[] { "board/style","board/list"});
+        req.setAttribute("addScript", List.of("board/common", "board/list"));
+
+        //속성 설정은 반드시 RequestDispathcer 상단에 정의
+        //출력이 완료되면 속성은 반영 안되기때문에 반드시 디스패쳐 위에 정의!
+
         //액션태그에 page와 같은 용도임. 버퍼의치환 ! 주소를 표기해준것
         RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF/templates/board/list.jsp");
         rd.forward(req, resp);
