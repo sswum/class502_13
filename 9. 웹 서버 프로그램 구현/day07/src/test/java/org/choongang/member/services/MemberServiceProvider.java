@@ -31,4 +31,9 @@ public class MemberServiceProvider {
     public JoinService joinService() {
         return new JoinService(joinValidator(), memberMapper());
     }
+
+//객체 조립기로 의존성을 해결 !
+    public LoginService loginService() {
+        return new LoginService();
+    }
 }
