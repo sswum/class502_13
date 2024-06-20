@@ -74,8 +74,6 @@ public class LoginServiceTest {
     }
 
 
-
-
     void requiredEachFieldTest(String name, String message, boolean isNull) {
         //이메일이 제대로 들어갈 수 있게 데이터 초기화
         setData();
