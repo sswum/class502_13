@@ -19,11 +19,15 @@ public class MemberServiceProvider {
 
         return instance;
     }
+    public SqlSession getSession() {
+        return DBConn.getSession();
+
+    }
+
 
     public MemberMapper memberMapper() {
-        SqlSession session = DBConn.getSession();
-        return session.getMapper(MemberMapper.class);
-    }
+        return getSession().getMapper(MemberMapper.class);
+    } //겟세션이 있어야 롤백이 가능해지기 때문에 넣어주기
 
     public JoinValidator joinValidator() {
         return new JoinValidator(memberMapper());
@@ -34,11 +38,11 @@ public class MemberServiceProvider {
     }
 
     public LoginValidator loginValidator() {
-        return new LoginValidator();
+        return new LoginValidator(memberMapper());
     }
 
 //객체 조립기로 의존성을 해결 !
     public LoginService loginService() {
-        return new LoginService(loginValidator()); //오류 나서 해결하겠다 =>g해결
+        return new LoginService(loginValidator(), memberMapper()); //memberMapper를 넣어줘야 오류가 해결
     }
 }

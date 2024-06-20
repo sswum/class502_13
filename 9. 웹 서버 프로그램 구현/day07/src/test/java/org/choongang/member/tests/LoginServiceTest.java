@@ -2,9 +2,13 @@ package org.choongang.member.tests;
 
 import com.github.javafaker.Faker;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.ibatis.session.SqlSession;
 import org.choongang.global.exceptions.BadRequestException;
+import org.choongang.member.controllers.RequestJoin;
+import org.choongang.member.services.JoinService;
 import org.choongang.member.services.LoginService;
 import org.choongang.member.services.MemberServiceProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +27,8 @@ import static org.mockito.BDDMockito.given;
 public class LoginServiceTest {
     private LoginService loginService;
     private Faker faker;
+    private RequestJoin form;
+    private SqlSession dbsession;
 
     @Mock //가짜 요청 만들기
     private HttpServletRequest request;
@@ -36,13 +42,25 @@ public class LoginServiceTest {
         //모의객체 만들기
         faker = new Faker(Locale.ENGLISH);
 
+        dbsession=MemberServiceProvider.getInstance().getSession();
 
+        //회원가입부터 시키겠다 | 회원 가입 -> 가입한 회원 정보로 email , password 스텁 생성
+        JoinService joinService = MemberServiceProvider.getInstance().joinService();
+        form=RequestJoin.builder()
+                .email(System.currentTimeMillis()+faker.internet()
+                .emailAddress())
+                .password(faker.regexify("\\w{8,16}").toLowerCase())
+                .userName(faker.name().fullName())
+                .termsAgree(true)
+                .build();
+        form.setConfirmPassword(form.getPassword());
+        joinService.process(form);
     }
 
     void setData() { //모의객체에 있다가 여기로 분리 시켜줬다.
         // 비번 검증 하려면 이메일이 있어야함. 비번검증할 때 이메일을 검증하는 건 이상하니까 이렇게 따로 분리
-        setParam("email", faker.internet().emailAddress()); //이메일 체크
-        setParam("password", faker.regexify("\\w{8}").toLowerCase()); // 패스워드 체크 소문자로만 나오게 8자리만
+        setParam("email", form.getEmail()); //이메일 체크
+        setParam("password", form.getPassword()); // 패스워드 체크 소문자로만 나오게 8자리만
     }
 
     //편의를 위해 만듦 =>요청에 이름이 들어오면 값으로 반환해주겠다.
@@ -62,19 +80,18 @@ public class LoginServiceTest {
     }
 
     @Test
-    @DisplayName("필수 입력 항목(이메일, 비밀번호 ) 검증 , 검증 실패 시 BadRequestException 발생")
-        //값이 있는지, 문구가 제대로 나오는 지 체크 , null 값인지
+    @DisplayName("필수 입력 항목(이메일, 비밀번호) 검증, 검증 실패시 BadRequestException 발생")
     void requiredFieldTest() {
         assertAll(
-                ()-> requiredEachFieldTest("email", false, "이메일"),
-                ()-> requiredEachFieldTest("email", true, "이메일"),
-                ()-> requiredEachFieldTest("password", false, "비밀번호"),
-                ()-> requiredEachFieldTest("password", true, "비밀번호")
+                () -> requiredEachFieldTest("email", false, "이메일"),
+                () -> requiredEachFieldTest("email", true, "이메일"),
+                () -> requiredEachFieldTest("password", false, "비밀번호"),
+                () -> requiredEachFieldTest("password", true, "비밀번호")
         );
     }
 
-
-    void requiredEachFieldTest(String name, String message, boolean isNull) {
+                                                            //여기 매개변수 안에 있는거 위치바뀜안됨
+    void requiredEachFieldTest(String name,  boolean isNull, String message) {
         //이메일이 제대로 들어갈 수 있게 데이터 초기화
         setData();
 
@@ -90,4 +107,21 @@ public class LoginServiceTest {
         assertTrue(msg.contains(message), name+", 키워드:"+message+"테스트");
 
     }
+
+    @Test
+    @DisplayName("이메일로 회원이 조회 되는지 검증, 검증 실패 시  BadRequestException 발생")
+    void memberExistTest() {
+        setParam("email", "****" + form.getEmail());
+    BadRequestException thrown = assertThrows(BadRequestException.class, () -> {
+        loginService.process(request);
+    });
+
+    }
+
+    @AfterEach //롤백기능 만들어줌
+    void destroy() {
+        dbsession.rollback();
+    }
+
 }
+
