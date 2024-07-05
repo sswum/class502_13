@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class Member {
     //카멜방식으로
- private long userNO;
+ private long userNo;
  private String email;
  private String password;
  private String userName;

@@ -2,6 +2,7 @@ package org.choongang.member.tests;
 
 import com.github.javafaker.Faker;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.apache.ibatis.session.SqlSession;
 import org.choongang.global.exceptions.BadRequestException;
 import org.choongang.member.controllers.RequestJoin;
@@ -15,12 +16,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 //자주 쓸거라 *로 표시
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.only;
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 //로그인을 문제없이 하기 위해서 만듦
 @ExtendWith(MockitoExtension.class)
 @DisplayName("로그인 기능 테스트")
@@ -33,6 +40,9 @@ public class LoginServiceTest {
     @Mock //가짜 요청 만들기
     private HttpServletRequest request;
 
+    @Mock
+    private HttpSession session;
+
 
     @BeforeEach
         //초기화 작업할 때 쓰고 | successTest 전에 각 1번씩 실행 후 그다음 success Test
@@ -41,7 +51,7 @@ public class LoginServiceTest {
 
         //모의객체 만들기
         faker = new Faker(Locale.ENGLISH);
-
+//세션 객체 만들기
         dbsession=MemberServiceProvider.getInstance().getSession();
 
         //회원가입부터 시키겠다 | 회원 가입 -> 가입한 회원 정보로 email , password 스텁 생성
@@ -65,6 +75,7 @@ public class LoginServiceTest {
 
     //편의를 위해 만듦 =>요청에 이름이 들어오면 값으로 반환해주겠다.
     void setParam(String name, String value) {
+        System.out.printf("name=%s, value=%s%n", name, value);
         given(request.getParameter(name)).willReturn(value);
     }
 
@@ -77,6 +88,8 @@ public class LoginServiceTest {
             loginService.process(request);
 
         });
+        //로그인 처리 완료 시 HttpSession -setAttribute 메서드가 호출 됨.
+        then(session).should(only()).setAttribute(any(),any());
     }
 
     @Test
@@ -112,16 +125,29 @@ public class LoginServiceTest {
     @DisplayName("이메일로 회원이 조회 되는지 검증, 검증 실패 시  BadRequestException 발생")
     void memberExistTest() {
         setParam("email", "****" + form.getEmail());
-    BadRequestException thrown = assertThrows(BadRequestException.class, () -> {
-        loginService.process(request);
-    });
+        BadRequestException thrown = assertThrows(BadRequestException.class, () -> {
+            loginService.process(request);
+        });
+
+        String message = thrown.getMessage();
+        assertTrue(message.contains("이메일 또는 비밀번호"));
 
     }
 
-    @AfterEach //롤백기능 만들어줌
+    @Test
+    @DisplayName("비밀번호 검증, 검증 실패시 BadRequestException")
+    void passwordCheckTest() {
+        setParam("password", "***" + form.getPassword());
+        BadRequestException thrown = assertThrows(BadRequestException.class, () -> {
+            loginService.process(request);
+        });
+
+        String message = thrown.getMessage();
+        assertTrue(message.contains("이메일 또는 비밀번호"));
+    }
+
+    @AfterEach
     void destroy() {
-        dbsession.rollback();
+        // dbSession.rollback();
     }
-
 }
-

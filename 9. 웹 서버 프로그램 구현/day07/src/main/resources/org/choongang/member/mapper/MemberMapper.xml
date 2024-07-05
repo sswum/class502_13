@@ -23,7 +23,7 @@
 
     <insert id="register">
         INSERT INTO MEMBER (USER_NO, EMAIL , PASSWORD, USER_NAME)
-        VALUES (SEQ_MEMBER.NEXTVAL, #{email},#{password},#{userName}
+        VALUES (SEQ_MEMBER.NEXTVAL, #{email},#{password},#{userName})
 
     </insert>
 </mapper>
