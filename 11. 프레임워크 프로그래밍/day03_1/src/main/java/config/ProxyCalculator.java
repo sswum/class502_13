@@ -1,9 +1,11 @@
 package config;
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.Signature;
+import org.aspectj.lang.annotation.*;
+
+import java.util.Arrays;
 
 //공통 기능이 들어갈 곳엔 @Aspect 애노테이션을 붙여야한다.
 @Aspect
@@ -11,15 +13,44 @@ public class ProxyCalculator {
 
     //범위는 exam01 패키지
     @Pointcut("execution(* exam01..*(..))")
-    public void publicTarget() {}
+    public void publicTarget() {
+    }
+
+    @Before("publicTarget()")
+    public void before(JoinPoint joinPoint) {
+
+        System.out.println("Before..");
+    }
+
+    @After("publicTarget()")
+    public void after(JoinPoint joinPoint) {
+
+        System.out.println("After..");
+    }
 
     @Around("publicTarget()")
     public Object process(ProceedingJoinPoint joinPoint) throws Throwable {
+/*
+        Signature sig = joinPoint.getSignature(); //호출된 메서드 정의 정보
+        System.out.println(sig.toLongString());
 
-        System.out.println("유입!!");
+        Object[] args = joinPoint.getArgs(); //인수 정보
+        System.out.println(Arrays.toString(args));
 
+        Object obj = joinPoint.getTarget(); //호출한 메서드를 가지고 있는 객체
+        System.out.println(obj.getClass());
+
+        long stime = System.nanoTime(); //공통 기능
+        try{
         Object result = joinPoint.proceed(); //핵심 기능 대신 실행★ -> factorial
 
-        return result;
-    }
-}
+
+        } finally {
+            long etime = System.nanoTime();  // 공통 기능
+            System.out.printf("걸린시간:%d%n", etime - stime);
+
+*/
+        return null;
+        }
+        }
+
