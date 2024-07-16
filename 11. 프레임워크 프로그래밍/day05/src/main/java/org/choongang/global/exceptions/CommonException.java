@@ -2,6 +2,7 @@ package org.choongang.global.exceptions;
 
 import org.springframework.http.HttpStatus;
 
+//예외 클래스는 상속 받아서 구현한다.
 public class CommonException extends RuntimeException {
 
     private HttpStatus status;

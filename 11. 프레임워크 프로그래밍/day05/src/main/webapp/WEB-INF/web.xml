@@ -21,6 +21,15 @@
                 org.choongang.config.MvcConfig
             </param-value>
         </init-param>
+        <multipart-config>
+            <max-file-size>20971520</max-file-size>
+            <!-- 한 파일당 최대 20mb !-->
+            <max-request-size>62914560</max-request-size>
+            <!-- 최대 업로드 파일 용량 60mb !-->
+            <file-size-threshold>20971520</file-size-threshold>
+            <!-- 업로드 하기 전에 보관해서 20mb이하인 파일을 20mb가가 넘어가면
+             임시메모리 공간 넣어뒀다가 승인되면 옮긴다.!-->
+        </multipart-config>
     </servlet>
     <servlet-mapping>
         <servlet-name>dispatcher</servlet-name>

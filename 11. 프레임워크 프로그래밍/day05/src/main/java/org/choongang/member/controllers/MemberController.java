@@ -1,16 +1,20 @@
 package org.choongang.member.controllers;
 
 import jakarta.servlet.annotation.WebInitParam;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.choongang.global.exceptions.BadRequestException;
 import org.choongang.member.entities.Member;
 import org.choongang.member.services.JoinService;
 import org.choongang.member.services.LoginService;
 import org.choongang.member.validators.JoinValidator;
 import org.choongang.member.validators.LoginValidator;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -77,6 +81,31 @@ public class MemberController {
     public String logout(HttpSession session) {
         session.invalidate(); //세션 비우기
         return "redirect:/member/login";
+    }
+
+    @GetMapping("/list")
+    public String list(@Valid @ModelAttribute MemberSearch search ,Errors errors) {
+                //검증을 해야하니까 @Valid를 넣고 여러 애노테이션 넣을 수 있따. @Valid넣었으니 에러즈 에러즈
+        log.info(search.toString());
+        boolean result =false;
+        if (!result) {
+            throw new BadRequestException("예외 발생!!!");
+        }
+        return "member/list";
+    }
+    @ResponseBody //반환값을 void 하기 위해서 넣었고 나중에 설명해주신다고 함.
+    @GetMapping("/info/{id}")
+    //{id} => 바뀔 수 있는 변수 경로의 값 , 패턴만 입력하면 교체 가능한 부분이고 여러개를 쓸 수 있다.
+    // 값을 바꾸면 자동적으로 형 변환이 된다.
+    public void info(@PathVariable("id") String email, @PathVariable(name ="id2",required = false)String email2) {
+        log.info("email:{}, email2:{}", email, email2);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public String errorHandler(Exception e, HttpServletRequest request, HttpServletResponse response, Model model) {
+        e.printStackTrace();
+        log.info("MemberController에서 유입");
+        return "error/common";
     }
 
 
