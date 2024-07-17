@@ -18,6 +18,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.IntStream;
+
 @Slf4j
 @Controller
 @RequestMapping("/member")
@@ -84,22 +88,38 @@ public class MemberController {
     }
 
     @GetMapping("/list")
-    public String list(@Valid @ModelAttribute MemberSearch search ,Errors errors) {
-                //검증을 해야하니까 @Valid를 넣고 여러 애노테이션 넣을 수 있따. @Valid넣었으니 에러즈 에러즈
+    public String list(@Valid @ModelAttribute MemberSearch search, Errors errors) {
+        //검증을 해야하니까 @Valid를 넣고 여러 애노테이션 넣을 수 있따. @Valid넣었으니 에러즈 에러즈
         log.info(search.toString());
-        boolean result =false;
+        boolean result = false;
         if (!result) {
             throw new BadRequestException("예외 발생!!!");
         }
         return "member/list";
     }
+
     @ResponseBody //반환값을 void 하기 위해서 넣었고 나중에 설명해주신다고 함.
     @GetMapping("/info/{id}")
     //{id} => 바뀔 수 있는 변수 경로의 값 , 패턴만 입력하면 교체 가능한 부분이고 여러개를 쓸 수 있다.
     // 값을 바꾸면 자동적으로 형 변환이 된다.
-    public void info(@PathVariable("id") String email, @PathVariable(name ="id2",required = false)String email2) {
+    public void info(@PathVariable("id") String email, @PathVariable(name = "id2", required = false) String email2) {
         log.info("email:{}, email2:{}", email, email2);
     }
+
+    @ResponseBody
+    @GetMapping("/list2")
+    public List<Member> list() {
+        List<Member> members = IntStream.rangeClosed(1, 10)
+                .mapToObj(i -> Member.builder()
+                        .email("user" + i + "@test.org")
+                        .password("12345678")
+                        .userName("사용자" + i)
+                        .regDt(LocalDateTime.now())
+                        .build())
+                .toList();
+        return members;
+    }
+    /*
 
     @ExceptionHandler(BadRequestException.class)
     public String errorHandler(Exception e, HttpServletRequest request, HttpServletResponse response, Model model) {
@@ -107,11 +127,12 @@ public class MemberController {
         log.info("MemberController에서 유입");
         return "error/common";
     }
-
+*/
 
      /*  @InitBinder
     public void initBinder(WebDataBinder binder) {
         binder.setValidator(joinValidator);
     }//위에 @Valid 애노테이션이 있으면 initBinder를 통해서 검증을 한다.
 */
+
 }

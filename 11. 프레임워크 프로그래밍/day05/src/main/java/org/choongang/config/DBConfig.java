@@ -28,8 +28,8 @@ public class DBConfig extends AbstractJdbcConfiguration {
         /* 연결 설정 S */
         ds.setDriverClassName("oracle.jdbc.driver.OracleDriver");
         ds.setUrl("jdbc:oracle:thin:@localhost:1521:XE");
-        ds.setUsername("SPRING");
-        ds.setPassword("oracle");
+        ds.setUsername(System.getenv("db.username")); //깃허브에 비번같은거 올리면 안됨
+        ds.setPassword(System.getenv("db.password")); //실행 과정중에 설정하는게 제일 적합
         /* 연결 설정 E */
 
         /* 커넥션 풀 설정 S */

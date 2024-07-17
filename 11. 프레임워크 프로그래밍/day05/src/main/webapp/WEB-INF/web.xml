@@ -21,6 +21,7 @@
                 org.choongang.config.MvcConfig
             </param-value>
         </init-param>
+
         <multipart-config>
             <max-file-size>20971520</max-file-size>
             <!-- 한 파일당 최대 20mb !-->
