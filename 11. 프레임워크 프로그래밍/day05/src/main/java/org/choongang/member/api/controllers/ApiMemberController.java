@@ -1,7 +1,11 @@
 package org.choongang.member.api.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.choongang.global.exceptions.BadRequestException;
+import org.choongang.global.exceptions.CommonException;
+import org.choongang.global.rests.JSONData;
 import org.choongang.member.controllers.RequestJoin;
 import org.choongang.member.entities.Member;
 import org.choongang.member.mappers.MemberMapper;
@@ -10,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -25,9 +30,20 @@ public class ApiMemberController {
     private final MemberMapper mapper;
     private final JoinService joinService;
 
-
     @PostMapping // POST /api/member
-    public ResponseEntity join(@RequestBody RequestJoin form) {
+    public ResponseEntity join(@Valid @RequestBody RequestJoin form, Errors errors) {
+        if (errors.hasErrors()) {
+            errors.getFieldErrors().forEach(System.out::println);
+                        //필드별로 에러가 날라온다
+            errors.getGlobalErrors().forEach(System.out::println); //요런 에러설정은 초기에 하는게 좋다.
+
+            return ResponseEntity.badRequest().build();
+        }
+
+        boolean result = false;
+        if (!result) {
+            throw new BadRequestException("예외 테스트!");
+        }
 
         joinService.process(form);
 
@@ -36,15 +52,17 @@ public class ApiMemberController {
     }
 
 
+
     @GetMapping("/info/{email}")
-    public Member info(@PathVariable("email") String email) {
+    public JSONData info(@PathVariable("email") String email) {
         //Conten-Type : application/json
         Member member = mapper.get(email);
-        return member;
+
+        return new JSONData(member);
     }
 
     @GetMapping("/list") //여러 사용자 만들기
-    public ResponseEntity<List<Member>> list() {
+    public ResponseEntity<JSONData> list() {
         List<Member> members = IntStream.rangeClosed(1, 10)
                 .mapToObj(i -> Member.builder()
                         .email("user" + i + "@test.org")
@@ -54,13 +72,12 @@ public class ApiMemberController {
                         .build())
                 .toList(); // 상세하게 상태코드와 데이터를 출력하게끔 넣었땅.
 
-        HttpHeaders headers =new HttpHeaders(); //헤더
+        HttpHeaders headers = new HttpHeaders(); //헤더
         headers.add("t1", "v1");
         headers.add("t2", "v2");
 
 
-
-        return new ResponseEntity<>(members, headers, HttpStatus.OK);
+        return new ResponseEntity<>(new JSONData(members), headers, HttpStatus.OK);
     }
 
 
@@ -70,8 +87,25 @@ public class ApiMemberController {
         //Content-Type : text/plain
         return "안녕하세요!";
     }
+
     @GetMapping("/test2")
     public void test2() {
         log.info("test2...");
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<JSONData> errorHandler(Exception e) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR; // 500
+        if (e instanceof CommonException commonException) {
+            status = commonException.getStatus();
+        }
+        JSONData data = new JSONData();
+        data.setSuccess(false); //실패를 했다고 알려줌
+        data.setMessage(e.getMessage());
+        data.setStatus(status);
+
+        e.printStackTrace();
+
+        return ResponseEntity.status(status).body(data);
     }
 }
