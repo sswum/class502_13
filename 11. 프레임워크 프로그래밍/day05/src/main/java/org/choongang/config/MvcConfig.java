@@ -54,11 +54,13 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addViewController("/mypage")
                 .setViewName("mypage/index");
     }
-
+/*
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
         registry.jsp("/WEB-INF/templates/", ".jsp");
     }
+
+ */
 
     @Bean
     //프로퍼티 파일에 있는 설정을 교체 하겠다. (placeholder=교체)
