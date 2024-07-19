@@ -86,7 +86,7 @@ public class MemberController {
         session.invalidate(); //세션 비우기
         return "redirect:/member/login";
     }
-
+/*
     @GetMapping("/list")
     public String list(@Valid @ModelAttribute MemberSearch search, Errors errors) {
         //검증을 해야하니까 @Valid를 넣고 여러 애노테이션 넣을 수 있따. @Valid넣었으니 에러즈 에러즈
@@ -97,6 +97,44 @@ public class MemberController {
         }
         return "member/list";
     }
+
+ */
+
+    @GetMapping("/list")
+    public String list2(Model model) {
+
+        Member member = Member.builder()
+                .email("user01@test.org")
+                .password("12345678")
+                .userName("<h1>사용자01</h1>")
+                .regDt(LocalDateTime.now())
+                .build();
+                //회원 데이터는 연습하기 위해서 넣어봄.
+        model.addAttribute("member", member);
+        //모델이라는명으로 속성명을 넣었다.
+
+
+
+        List<Member> items = IntStream.rangeClosed(1,10)
+                .mapToObj(i-> Member.builder()
+                        .email("user"+i+"@test.org")
+                        .userName("사용자"+i)
+                        .regDt(LocalDateTime.now())
+                        .build())
+                .toList();
+        model.addAttribute("items", items);
+
+        return "member/list2";
+
+    }
+
+
+
+
+
+
+
+
 
     @ResponseBody //반환값을 void 하기 위해서 넣었고 나중에 설명해주신다고 함.
     @GetMapping("/info/{id}")
