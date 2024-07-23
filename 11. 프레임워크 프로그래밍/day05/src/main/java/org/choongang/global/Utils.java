@@ -15,10 +15,14 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class Utils {
+public class Utils { //빈의 이름 - utils (보통 클래스의 이름이 기본이고 바꾸고 싶으면 @Component사용해서 바꿀 수도 있따.)
 
     private final MessageSource messageSource;
     private final HttpServletRequest request;
+
+    public String toUpper(String str) {
+        return str.toUpperCase();
+    }
 
     public Map<String, List<String>> getErrorMessages(Errors errors) {
         // FieldErrors

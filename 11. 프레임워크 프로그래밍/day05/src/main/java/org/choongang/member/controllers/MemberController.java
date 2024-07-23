@@ -103,6 +103,7 @@ public class MemberController {
     @GetMapping("/list")
     public String list2(Model model) {
 
+        /*
         Member member = Member.builder()
                 .email("user01@test.org")
                 .password("12345678")
@@ -113,7 +114,7 @@ public class MemberController {
         model.addAttribute("member", member);
         //모델이라는명으로 속성명을 넣었다.
 
-
+*/
 
         List<Member> items = IntStream.rangeClosed(1,10)
                 .mapToObj(i-> Member.builder()
@@ -123,17 +124,11 @@ public class MemberController {
                         .build())
                 .toList();
         model.addAttribute("items", items);
+        model.addAttribute("addCss", new String[]{"member/style", "member/list"});
+        model.addAttribute("addScript", List.of("member/common", "member/list"));
 
-        return "member/list2";
-
+        return "member/list";
     }
-
-
-
-
-
-
-
 
 
     @ResponseBody //반환값을 void 하기 위해서 넣었고 나중에 설명해주신다고 함.
