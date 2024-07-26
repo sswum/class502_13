@@ -1,16 +1,15 @@
 package org.choongang.member.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.choongang.board.entities.BoardData;
 import org.choongang.global.entities.BaseEntity;
 import org.choongang.member.constants.Authority;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -49,6 +48,22 @@ public class Member extends BaseEntity {
 
     @UpdateTimestamp
     private LocalDateTime modifiedAt;
+
+    @OneToOne(fetch=FetchType.LAZY) //필요할 때 늦게 지연로딩해서 가져온다.
+    @JoinColumn(name="profile_seq")// MemberProfile_seq 너무 길어서 변경
+    private MemberProfile profile; //외래키가 있는 쪽이 관계주인이기 때문에 unique
+
+
+    //ToString 추가 배제 ,순환참조가 매니투원 원투매니 같이 정의 되기때문에 발생
+    // 멤버쪽에서 배제하는 이유는 멤버쪽에서 게시글 데이터가 꼭 필요할까?
+    // 내가 쓴 게시글을 조회할 때 빼고 없으니까 여기서 배제를 하는 것.
+    @ToString.Exclude
+    @OneToMany (mappedBy = "member" , cascade = {CascadeType.REMOVE,CascadeType.PERSIST})
+    //이건 원투매니로 맵핑한 것이란 걸 알려줘야함. 반드시 연관관계의 주인을 설정해야함.
+    // many인쪽 BoardData에서 외래키가 부여된 곳(manyto가 정의된 곳)인 mappedBy="member"를 위에처럼 설정해야함.
+    private List<BoardData> items; //게시글을 조회해볼 것
+
+
 
 }
 
